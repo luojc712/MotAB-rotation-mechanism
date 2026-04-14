@@ -1,0 +1,74 @@
+; ========== 气相平衡模拟 ==========
+; 适用于天冬氨酸去质子化自由能计算
+
+; ========== 运行控制 ==========
+integrator              = md
+dt                      = 0.001        ; 1 fs时间步长（平衡阶段保守）
+nsteps                  = 125000       ; 125 ps
+
+; ========== 输出控制 ==========
+nstxout-compressed      = 5000         ; 每5 ps保存一次xtc
+nstxout                 = 0
+nstvout                 = 0
+nstfout                 = 0
+nstcalcenergy           = 100
+nstenergy               = 1000
+nstlog                  = 1000
+
+; ========== 邻居搜索 ==========
+cutoff-scheme           = Verlet
+nstlist                 = 20
+pbc                     = xyz          ; 保持周期性，但盒子很大（15 nm）
+
+; ========== 静电相互作用 ==========
+coulombtype             = Cut-off      ; 气相用截断
+rcoulomb                = 6.0
+
+; ========== 范德华相互作用 ==========
+vdwtype                 = Cut-off
+vdw-modifier            = none
+rvdw                    = 6.0
+
+; ========== 邻居列表 ==========
+rlist                   = 6.0
+
+; ========== 温度耦合 ==========
+tcoupl                  = v-rescale
+tc_grps                 = System       ; 气相用System组
+tau_t                   = 1.0
+ref_t                   = 310
+
+; ========== 压力耦合 ==========
+pcoupl                  = no           ; 气相无压力耦合
+
+; ========== 约束 ==========
+constraints             = h-bonds      ; 约束氢键，允许2fs时间步长
+constraint_algorithm    = LINCS
+
+; ========== 速度生成 ==========
+gen-vel                 = yes          ; 生成初始速度
+gen-temp                = 310
+gen-seed                = -1           ; 随机种子
+
+; ========== 质心运动移除 ==========
+nstcomm                 = 100
+comm_mode               = Linear       ; 或Angular
+comm_grps               = System
+
+; ========== 自由能微扰 ==========
+free_energy             = yes
+init_lambda_state       = 0
+delta_lambda            = 0
+calc_lambda_neighbors   = -1
+
+; Lambda值设置
+fep-lambdas             = 0.00 0.10 0.20 0.30 0.40 0.50 0.60 0.70 0.80 0.90 1.00
+
+; 软核势参数
+sc-alpha                = 0.3
+sc-coul                 = yes
+sc-power                = 1
+sc-sigma                = 0.25
+
+; dH/dλ输出频率
+nstdhdl                 = 10

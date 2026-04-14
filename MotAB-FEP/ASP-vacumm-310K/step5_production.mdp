@@ -1,0 +1,70 @@
+; ========== 气相生产模拟 ==========
+; 适用于天冬氨酸去质子化自由能计算
+
+; ========== 运行控制 ==========
+integrator              = md
+dt                      = 0.002        ; 2 fs时间步长
+nsteps                  = 5000000      ; 10 ns
+
+; ========== 输出控制 ==========
+nstxout-compressed      = 50000        ; 每100 ps保存一次xtc
+nstxout                 = 0
+nstvout                 = 0
+nstfout                 = 0
+nstcalcenergy           = 100
+nstenergy               = 1000
+nstlog                  = 1000
+
+; ========== 邻居搜索 ==========
+cutoff-scheme           = Verlet
+nstlist                 = 20
+pbc                     = xyz          ; 保持周期性，但盒子很大（15 nm）
+
+; ========== 静电相互作用 ==========
+coulombtype             = Cut-off      ; 气相用截断
+rcoulomb                = 6.0
+
+; ========== 范德华相互作用 ==========
+vdwtype                 = Cut-off
+vdw-modifier            = none
+rvdw                    = 6.0
+
+; ========== 邻居列表 ==========
+rlist                   = 6.0
+
+; ========== 温度耦合 ==========
+tcoupl                  = v-rescale
+tc_grps                 = System       ; 气相用System组
+tau_t                   = 1.0
+ref_t                   = 310
+
+; ========== 压力耦合 ==========
+pcoupl                  = no           ; 气相无压力耦合
+
+; ========== 约束 ==========
+constraints             = h-bonds      ; 约束氢键
+constraint_algorithm    = LINCS
+continuation            = yes          ; 从平衡阶段继续
+
+; ========== 质心运动移除 ==========
+nstcomm                 = 100
+comm_mode               = Linear
+comm_grps               = System
+
+; ========== 自由能微扰 ==========
+free_energy             = yes
+init_lambda_state       = 0            ; 需要针对每个lambda窗口修改
+delta_lambda            = 0
+calc_lambda_neighbors   = -1           ; 计算所有lambda对的能量差
+
+; Lambda值设置（11个窗口）
+fep-lambdas             = 0.00 0.10 0.20 0.30 0.40 0.50 0.60 0.70 0.80 0.90 1.00
+
+; 软核势参数
+sc-alpha                = 0.3
+sc-coul                 = yes          ; 对库仑相互作用使用软核势
+sc-power                = 1
+sc-sigma                = 0.25
+
+; dH/dλ输出频率
+nstdhdl                 = 10           ; 每10步输出一次，用于BAR分析

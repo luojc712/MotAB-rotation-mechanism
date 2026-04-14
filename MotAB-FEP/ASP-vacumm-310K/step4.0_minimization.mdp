@@ -1,0 +1,52 @@
+; ========== 气相能量最小化 ==========
+; 适用于天冬氨酸去质子化自由能计算
+
+; ========== 运行控制 ==========
+integrator              = steep
+emtol                   = 10.0
+emstep                  = 0.01
+nsteps                  = 50000
+
+; ========== 输出控制 ==========
+nstlog                  = 100
+nstenergy               = 100
+nstxout                 = 1000
+
+; ========== 邻居搜索 ==========
+cutoff-scheme           = Verlet
+nstlist                 = 20
+pbc                     = xyz          ; 保持周期性，但盒子很大
+
+; ========== 静电相互作用 ==========
+coulombtype             = Cut-off      ; 气相用截断，不用PME
+rcoulomb                = 6.0          ; 小于盒子边长的一半
+
+; ========== 范德华相互作用 ==========
+vdwtype                 = Cut-off
+vdw-modifier            = none         ; 不使用Force-switch
+rvdw                    = 6.0
+
+; ========== 邻居列表 ==========
+rlist                   = 6.0
+
+; ========== 约束 ==========
+constraints             = none         ; EM时不约束键长
+constraint_algorithm    = LINCS
+
+; ========== 自由能微扰 ==========
+free_energy             = yes
+init_lambda_state       = 0
+delta_lambda            = 0
+calc_lambda_neighbors   = -1
+
+; Lambda值设置（11个窗口）
+fep-lambdas             = 0.00 0.10 0.20 0.30 0.40 0.50 0.60 0.70 0.80 0.90 1.00
+
+; 软核势参数
+sc-alpha                = 0.3
+sc-coul                 = yes
+sc-power                = 1
+sc-sigma                = 0.25
+
+; dH/dλ输出频率
+nstdhdl                 = 10
